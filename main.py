@@ -15,10 +15,6 @@ def getkeys(fileName):
     return api_key, api_key_secret, access_token, access_secret
 
 
-
-
-
-
 class FrameLogin(tk.Frame):
     def __init__(self):
         super().__init__()
@@ -50,7 +46,6 @@ class FrameEntry(tk.Frame):
         self.access_token_secret.grid(row=5, column=1, sticky="w")
 
 
-
 class LogInWindow(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -63,7 +58,9 @@ class LogInWindow(tk.Tk):
         self.bottomPart.pack()
         self.submission = tk.Button(self, text="Submit", width=70, command=self.getKeysEntry)
         self.submission.pack(pady=40)
-        self.incorrect = tk.Label(self, text="Incorrect information. Please try again", font=("Arial", 15, 'bold'), fg="red")
+        self.incorrect = tk.Label(self, text="Incorrect information. Please try again", font=("Arial", 15, 'bold'),
+                                  fg="red")
+
     def getKeysEntry(self):
         AK = self.bottomPart.api_entry.get()
         AS = self.bottomPart.api_secret_entry.get()
@@ -71,19 +68,14 @@ class LogInWindow(tk.Tk):
         ATS = self.bottomPart.access_token_secret.get()
 
         try:
-            authenticator = tweepy.OAuthHandler(AK, AKS)
-            authenticator.set_access_token(AT, AS)
+            authenticator = tweepy.OAuthHandler(AK, AS)
+            authenticator.set_access_token(AT, ATS)
             api = tweepy.API(authenticator, wait_on_rate_limit=True)
 
         except Exception:
             self.incorrect.pack()
 
 
-
 if __name__ == "__main__":
     app = LogInWindow()
     app.mainloop()
-
-
-
-
