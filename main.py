@@ -1,18 +1,13 @@
-import tweepy
 import tkinter as tk
-
-global AK, AKS, AT, AS
-
-file = "TwitterKeys"
+from tkinter import ttk
 
 
-def getkeys(fileName):
-    all_keys = open(fileName, 'r').read().splitlines()
-    api_key = all_keys[0]
-    api_key_secret = all_keys[1]
-    access_token = all_keys[2]
-    access_secret = all_keys[3]
-    return api_key, api_key_secret, access_token, access_secret
+import tweepy
+from PIL import Image, ImageTk
+global AK, AKS, AT, ATS, AS, authenticator, api
+
+global file
+fileName = "TwitterKeys"
 
 
 class FrameLogin(tk.Frame):
@@ -49,7 +44,7 @@ class FrameEntry(tk.Frame):
 class LogInWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Twitter Desktop")
+        self.title("Twitter Desktop Log In")
         self.geometry(str(int(self.winfo_screenwidth() * 0.7)) + "x" + str(int(self.winfo_screenheight() * 0.7)))
 
         self.topPart = FrameLogin()
@@ -58,6 +53,8 @@ class LogInWindow(tk.Tk):
         self.bottomPart.pack()
         self.submission = tk.Button(self, text="Submit", width=70, command=self.getKeysEntry)
         self.submission.pack(pady=40)
+        self.fromFile = tk.Button(self, text="Get keys from the file", width=70, command=self.getKeys)
+        self.fromFile.pack()
         self.incorrect = tk.Label(self, text="Incorrect information. Please try again", font=("Arial", 15, 'bold'),
                                   fg="red")
 
@@ -67,6 +64,9 @@ class LogInWindow(tk.Tk):
         AT = self.bottomPart.access_token.get()
         ATS = self.bottomPart.access_token_secret.get()
 
+        self.Authenticate(AK, AS, AT, ATS)
+
+    def Authenticate(self, AK, AS, AT, ATS):
         try:
             authenticator = tweepy.OAuthHandler(AK, AS)
             authenticator.set_access_token(AT, ATS)
@@ -74,6 +74,52 @@ class LogInWindow(tk.Tk):
 
         except Exception:
             self.incorrect.pack()
+        else:
+            authenticator = tweepy.OAuthHandler(AK, AS)
+            authenticator.set_access_token(AT, ATS)
+            api = tweepy.API(authenticator, wait_on_rate_limit=True)
+            self.destroy()
+            main = MainWindow()
+            main.mainloop()
+
+    def getKeys(self):
+        all_keys = open(fileName, 'r').read().splitlines()
+        AK = all_keys[0]
+        AS = all_keys[1]
+        AT = all_keys[2]
+        ATS = all_keys[3]
+
+        self.Authenticate(AK, AS, AT, ATS)
+
+
+class MainWindow(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Twitter Desktop")
+        self.geometry(str(int(self.winfo_screenwidth())) + "x" + str(int(self.winfo_screenheight())))
+        self.Headline = tk.Label(self, text="Use this Twitter Desktop application to:", font=("Arial", 35, 'bold'))
+        self.Headline.pack(pady=40)
+        self.tabControl = ttk.Notebook(self)
+        self.tab1 = tk.Frame(self.tabControl,width=80,height=80)
+        self.tab2 = tk.Frame(self.tabControl)
+        self.tab3 = tk.Frame(self.tabControl)
+        self.tab4 = tk.Frame(self.tabControl)
+        self.tab5 = tk.Frame(self.tabControl)
+        self.tabControl.add(self.tab1, text="Send a Tweet")
+        self.tabControl.add(self.tab2, text="Respond to a Tweet")
+        self.tabControl.add(self.tab3, text="Retrieve a Tweet under a specific hashtag")
+        self.tabControl.add(self.tab4, text="Find locally trending subjects")
+        self.tabControl.add(self.tab5, text="Upload a media file")
+        self.tabControl.pack(pady=40)
+        self.tweetLabel = tk.Label(self.tab1, text = "What would you like to tweet about?", font=("Arial", 20, 'bold'))
+        self.tweetLabel.pack()
+        self.tweetEntry = tk.Entry(self.tab1, width=60)
+        self.tweetEntry.pack(pady=40)
+
+        #image = Image.open("pngtree-vector-right-arrow-icon-png-image_956430.png")
+        #photo = ImageTk.PhotoImage(image)
+        #self.go = tk.Button(self.tab1, image=photo, command=None)
+        #self.go.pack(side="right")
 
 
 if __name__ == "__main__":
