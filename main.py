@@ -1,4 +1,5 @@
 import tkinter as tk
+from cgitb import text
 from tkinter import ttk
 
 
@@ -67,12 +68,13 @@ class LogInWindow(tk.Tk):
         self.Authenticate(AK, AS, AT, ATS)
 
     def Authenticate(self, AK, AS, AT, ATS):
+        global api
         try:
             authenticator = tweepy.OAuthHandler(AK, AS)
             authenticator.set_access_token(AT, ATS)
             api = tweepy.API(authenticator, wait_on_rate_limit=True)
-
-        except Exception:
+            api.mentions_timeline()
+        except:
             self.incorrect.pack()
         else:
             authenticator = tweepy.OAuthHandler(AK, AS)
@@ -95,31 +97,61 @@ class LogInWindow(tk.Tk):
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
+
         self.title("Twitter Desktop")
         self.geometry(str(int(self.winfo_screenwidth())) + "x" + str(int(self.winfo_screenheight())))
         self.Headline = tk.Label(self, text="Use this Twitter Desktop application to:", font=("Arial", 35, 'bold'))
         self.Headline.pack(pady=40)
+
         self.tabControl = ttk.Notebook(self)
-        self.tab1 = tk.Frame(self.tabControl,width=80,height=80)
+
+        self.home = tk.Frame(self.tabControl)
+        self.tab1 = tk.Frame(self.tabControl)
         self.tab2 = tk.Frame(self.tabControl)
         self.tab3 = tk.Frame(self.tabControl)
         self.tab4 = tk.Frame(self.tabControl)
         self.tab5 = tk.Frame(self.tabControl)
+
+        self.container = tk.Frame(self.tabControl)
+        self.container.pack(fill="both", expand=True)
+        self.tabControl.add(self.container, text='Home')
+        self.canvas = tk.Canvas(self.container, width=200, height=400)
+        self.scroll = tk.Scrollbar(self.container, command=self.canvas.yview)
+        self.canvas.config(yscrollcommand=self.scroll.set, scrollregion=(0, 0, 10000, 1000))
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scroll.pack(side="right", fill="y")
+
         self.tabControl.add(self.tab1, text="Send a Tweet")
         self.tabControl.add(self.tab2, text="Respond to a Tweet")
         self.tabControl.add(self.tab3, text="Retrieve a Tweet under a specific hashtag")
         self.tabControl.add(self.tab4, text="Find locally trending subjects")
         self.tabControl.add(self.tab5, text="Upload a media file")
+
+
+
+        public_tweets = api.home_timeline(count = 200)
+
+        for tweet in public_tweets:
+            #self.temp = tk.Label(self.canvas, text = tweet.text, font =("Arial", 20),width=500)
+            #self.temp.pack()
+            self.canvas.create_text(100, 150, fill="darkblue",font="Times 20 italic bold",
+                        text="Click the bubbles that are multiples of two.")
+            #self.canvas.create_text(text=tweet.author.screen_name, font=("Arial", 10, "italic"))
+            #self.temp1.pack()
+
         self.tabControl.pack(pady=40)
         self.tweetLabel = tk.Label(self.tab1, text = "What would you like to tweet about?", font=("Arial", 20, 'bold'))
-        self.tweetLabel.pack()
+        self.tweetLabel.grid(row=0, column=0, padx=20, pady=20)
         self.tweetEntry = tk.Entry(self.tab1, width=60)
-        self.tweetEntry.pack(pady=40)
+        self.tweetEntry.grid(row=1, column=0, padx=20, pady=20)
 
-        #image = Image.open("pngtree-vector-right-arrow-icon-png-image_956430.png")
-        #photo = ImageTk.PhotoImage(image)
-        #self.go = tk.Button(self.tab1, image=photo, command=None)
-        #self.go.pack(side="right")
+        self.image = Image.open("pngtree-vector-right-arrow-icon-png-image_956430.png")
+        self.image = self.image.resize((50, 50))
+        self.photo = ImageTk.PhotoImage(self.image)
+        self.go = tk.Button(self.tab1, image=self.photo, command=self.Sending)
+        self.go.grid(row=0, column=1, rowspan=2)
+    def Sending(self):
+        self.tweetEntry.get()
 
 
 if __name__ == "__main__":
