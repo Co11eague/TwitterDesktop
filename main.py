@@ -103,7 +103,13 @@ class MainWindow(tk.Tk):
         self.Headline = tk.Label(self, text="Use this Twitter Desktop application to:", font=("Arial", 35, 'bold'))
         self.Headline.pack(pady=40)
 
-        self.tabControl = ttk.Notebook(self)
+        self.tabControl = ttk.Notebook(self, width=int(self.winfo_screenwidth()*0.9), height=int(self.winfo_screenheight()*0.75))
+        self.style = ttk.Style()
+        self.style.theme_create("MyStyle", parent="alt", settings={
+            "TNotebook.Tab": {"configure": {"padding": [30, 30]}, }})
+
+        self.style.theme_use("MyStyle")
+
 
         self.home = tk.Frame(self.tabControl)
         self.tab1 = tk.Frame(self.tabControl)
@@ -134,7 +140,7 @@ class MainWindow(tk.Tk):
         for tweet in public_tweets:
             #self.temp = tk.Label(self.canvas, text = tweet.text, font =("Arial", 20),width=500)
             #self.temp.pack()
-            self.canvas.create_text(100, 150, fill="darkblue",font="Times 20 italic bold",
+            self.canvas.create_text(300, 150, fill="darkblue",font="Times 20 italic bold",
                         text="Click the bubbles that are multiples of two.")
             #self.canvas.create_text(text=tweet.author.screen_name, font=("Arial", 10, "italic"))
             #self.temp1.pack()
