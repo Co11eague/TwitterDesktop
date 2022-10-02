@@ -68,7 +68,7 @@ class LogInWindow(tk.Tk):
         self.Authenticate(AK, AS, AT, ATS)
 
     def Authenticate(self, AK, AS, AT, ATS):
-        global api
+        global api, client
         try:
             authenticator = tweepy.OAuthHandler(AK, AS)
             authenticator.set_access_token(AT, ATS)
@@ -123,7 +123,7 @@ class MainWindow(tk.Tk):
         self.tabControl.add(self.container, text='Home')
         self.canvas = tk.Canvas(self.container, width=200, height=400)
         self.scroll = tk.Scrollbar(self.container, command=self.canvas.yview)
-        self.canvas.config(yscrollcommand=self.scroll.set, scrollregion=(0, 0, 10000, 1000))
+        self.canvas.config(yscrollcommand=self.scroll.set, scrollregion=(0, 0, 10000, 20000))
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scroll.pack(side="right", fill="y")
 
@@ -135,14 +135,17 @@ class MainWindow(tk.Tk):
 
 
 
-        public_tweets = api.home_timeline(count = 200)
+        public_tweets = api.home_timeline(count = 30000)
+        sum = 0
+        sum1 = 0
 
-        for tweet in public_tweets:
+        for i, tweet in enumerate(public_tweets):
             #self.temp = tk.Label(self.canvas, text = tweet.text, font =("Arial", 20),width=500)
             #self.temp.pack()
-            self.canvas.create_text(300, 150, fill="darkblue",font="Times 20 italic bold",
-                        text="Click the bubbles that are multiples of two.")
-            #self.canvas.create_text(text=tweet.author.screen_name, font=("Arial", 10, "italic"))
+            self.canvas.create_text(self.winfo_screenwidth()*0.45, (30 + 150 * i + sum), text=tweet.text, font="Times 20 bold")
+            sum += 15 * (tweet.text.count("\n"))
+            self.canvas.create_text(self.winfo_screenwidth()*0.45, (70 + 150 * i + sum), text=tweet.author.screen_name, font="Times 15 italic")
+            print(sum)
             #self.temp1.pack()
 
         self.tabControl.pack(pady=40)
@@ -157,7 +160,7 @@ class MainWindow(tk.Tk):
         self.go = tk.Button(self.tab1, image=self.photo, command=self.Sending)
         self.go.grid(row=0, column=1, rowspan=2)
     def Sending(self):
-        self.tweetEntry.get()
+        api.update_status(self.tweetEntry.get())
 
 
 if __name__ == "__main__":
